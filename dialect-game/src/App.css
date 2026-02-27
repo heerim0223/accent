@@ -51,6 +51,26 @@
   justify-content: center;
 }
 
+/* gentle bounce effect when a tone is entered */
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+}
+
+.tone-slot.bounce {
+  animation: bounce 0.3s ease;
+}
+
+/* fade-out when deleting tone */
+@keyframes fade-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.5); }
+}
+
+.tone-slot.fade {
+  animation: fade-out 0.3s ease forwards;
+}
+
 .slot.current .tone-slot {
   border-color: #ffa500; /* orange highlight */
 }

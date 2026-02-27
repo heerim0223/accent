@@ -9,11 +9,18 @@ function App() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(20);
 
+  // bounce animation flags per slot
+  const [bounceSlots, setBounceSlots] = useState([]);
+  // fade-out animation flags for deletions
+  const [fadeSlots, setFadeSlots] = useState([]);
+
   const loadRandomProblem = () => {
     const random =
       problems[Math.floor(Math.random() * problems.length)];
     setProblem(random);
     setUserTones(Array(random.syllables.length).fill(null));
+    setBounceSlots(Array(random.syllables.length).fill(false));
+    setFadeSlots(Array(random.syllables.length).fill(false));
     setCurrentSlot(0);
     setTimeLeft(20);
   };
@@ -40,14 +47,72 @@ function App() {
   }, [timeLeft]);
 
   // keyboard-based selection handlers
+
+  // when we want a slot to bounce, flip the flag off then on so the
+  // CSS animation restarts cleanly even during rapid typing
+  const animateSlot = (idx) => {
+    setBounceSlots((prev) => {
+      const arr = [...prev];
+      arr[idx] = false;
+      return arr;
+    });
+    // next frame toggle on
+    requestAnimationFrame(() => {
+      setBounceSlots((prev) => {
+        const arr = [...prev];
+        arr[idx] = true;
+        return arr;
+      });
+    });
+    // clear after animation ends so class doesn't linger
+    setTimeout(() => {
+      setBounceSlots((prev) => {
+        const arr = [...prev];
+        arr[idx] = false;
+        return arr;
+      });
+    }, 400); // slightly longer than animation duration
+  };
   const selectToneForSlot = (tone) => {
     const updated = [...userTones];
     updated[currentSlot] = tone;
     setUserTones(updated);
+
+    // trigger bounce animation on this slot
+    animateSlot(currentSlot);
+
     // advance slot automatically
     setCurrentSlot((prev) =>
       Math.min(prev + 1, problem.syllables.length - 1)
     );
+  };
+
+  // deletion animation: fade previous slot then clear value
+  const animateRemoval = (idx) => {
+    setFadeSlots((prev) => {
+      const arr = [...prev];
+      arr[idx] = false;
+      return arr;
+    });
+    requestAnimationFrame(() => {
+      setFadeSlots((prev) => {
+        const arr = [...prev];
+        arr[idx] = true;
+        return arr;
+      });
+    });
+    setTimeout(() => {
+      setFadeSlots((prev) => {
+        const arr = [...prev];
+        arr[idx] = false;
+        return arr;
+      });
+      setUserTones((prev) => {
+        const arr = [...prev];
+        arr[idx] = null;
+        return arr;
+      });
+    }, 300); // duration matches CSS animation
   };
 
   const handleKeyDown = (e) => {
@@ -63,8 +128,19 @@ function App() {
         selectToneForSlot(3);
         break;
       case "ArrowLeft":
-        // move back without changing tone
-        setCurrentSlot((prev) => Math.max(prev - 1, 0));
+        // behave like a backspace: remove tone at cursor first
+        if (userTones[currentSlot] != null) {
+          // delete current tone and move back if possible
+          animateRemoval(currentSlot);
+          setCurrentSlot((prev) => Math.max(prev - 1, 0));
+        } else if (currentSlot > 0) {
+          // nothing here, remove previous slot
+          const prevIdx = currentSlot - 1;
+          if (userTones[prevIdx] != null) {
+            animateRemoval(prevIdx);
+          }
+          setCurrentSlot(prevIdx);
+        }
         break;
       case "Enter":
       case " ":
@@ -126,7 +202,9 @@ function App() {
           >
             <div className="syllable">{syllable}</div>
             <div
-              className="tone-slot"
+              className={`tone-slot${bounceSlots[index] ? " bounce" : ""}${
+                fadeSlots[index] ? " fade" : ""
+              }`}
               style={{
                 backgroundColor:
                   toneColors[userTones[index]] || "white"
