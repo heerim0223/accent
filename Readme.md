@@ -1,4 +1,4 @@
-Dialingo (Dialect + Duolingo)
+### Dialingo (Dialect + Duolingo)
 
 <img width="224" height="224" alt="Image" src="https://github.com/user-attachments/assets/2280030a-645c-4a7b-8c91-6a1d52024950" />
 
