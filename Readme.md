@@ -1,15 +1,22 @@
 ```
-/src
- ├─ components
- │   ├─ SentenceDisplay.jsx
- │   ├─ ToneSlots.jsx
- │   ├─ ToneButtons.jsx
- │
- ├─ data
- │   └─ problems.json
- │
- ├─ App.jsx
- └─ main.jsx
+main/
+ ├─ LICENSE
+ ├─ Readme.md
+ └─ dialect-game/
+      ├─ dist
+      ├─ node_modules
+      ├─ public
+      ├─ src
+      │   ├─ components
+      │   │   ├─ SentenceDisplay.jsx
+      │   │   ├─ ToneSlots.jsx
+      │   │   ├─ ToneButtons.jsx
+      │   ├─ data
+      │   │   └─ problems.json
+      │   ├─ App.jsx
+      │   └─ main.jsx
+      ├─ package.json
+      ├─ vite.config.js
 ```
 
 ### Usage
