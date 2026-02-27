@@ -1,3 +1,4 @@
+```
 /src
  ├─ components
  │   ├─ SentenceDisplay.jsx
@@ -9,12 +10,13 @@
  │
  ├─ App.jsx
  └─ main.jsx
+```
 
- node -v
+ ```node -v```
 
- npm create vite@latest dialect-game
- cd dialect-game
- npm install
+ ```npm create vite@latest dialect-game```
+ ```cd dialect-game```
+ ```npm install```
 
 ### Usage
 - Run the dev server inside `dialect-game`:
