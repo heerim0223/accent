@@ -1,0 +1,65 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+.sentence {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.meaning {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 32px;
+}
+
+.instructions {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.slots {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.syllable {
+  font-size: 24px;
+}
+
+.tone-slot {
+  margin-top: 8px;
+  width: 40px;
+  height: 40px;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot.current .tone-slot {
+  border-color: #ffa500; /* orange highlight */
+}
+
+.slot.current {
+  background-color: rgba(255, 165, 0, 0.1);
+}
+
+.buttons button {
+  margin: 5px;
+  padding: 10px 20px;
+}
