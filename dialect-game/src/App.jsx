@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import problems from "./data/problems.json";
 import "./App.css";
+import Shatter from "./components/Shatter";
 
 function App() {
   const [problem, setProblem] = useState(null);
@@ -8,11 +9,24 @@ function App() {
   const [currentSlot, setCurrentSlot] = useState(0); // index of active syllable
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(20);
+  // popup message state
+  const [popup, setPopup] = useState("");
+
+  // tone color map available to animations
+  const toneColors = {
+    1: "#4CAF50",
+    2: "#2196F3",
+    3: "#f44336"
+  };
 
   // bounce animation flags per slot
   const [bounceSlots, setBounceSlots] = useState([]);
   // fade-out animation flags for deletions
   const [fadeSlots, setFadeSlots] = useState([]);
+  // track shatter animations currently active
+  const [shatters, setShatters] = useState([]);
+  // refs to each slot element so we can position shatter effect
+  const slotRefs = useRef([]);
 
   const loadRandomProblem = () => {
     const random =
@@ -21,6 +35,7 @@ function App() {
     setUserTones(Array(random.syllables.length).fill(null));
     setBounceSlots(Array(random.syllables.length).fill(false));
     setFadeSlots(Array(random.syllables.length).fill(false));
+    slotRefs.current = [];
     setCurrentSlot(0);
     setTimeLeft(20);
   };
@@ -41,7 +56,7 @@ function App() {
 
   useEffect(() => {
     if (timeLeft === 0) {
-      alert("시간 초과!");
+      showPopup("시간 초과!", 2000);
       loadRandomProblem();
     }
   }, [timeLeft]);
@@ -89,6 +104,7 @@ function App() {
 
   // deletion animation: fade previous slot then clear value
   const animateRemoval = (idx) => {
+    // trigger fade animation
     setFadeSlots((prev) => {
       const arr = [...prev];
       arr[idx] = false;
@@ -101,6 +117,16 @@ function App() {
         return arr;
       });
     });
+
+    // determine shard color from current tone or empty
+    const color = toneColors[userTones[idx]] || "white";
+
+    // spawn shatter effect using the slot ref
+    setShatters((prev) => [
+      ...prev,
+      { id: Date.now() + Math.random(), idx, color }
+    ]);
+
     setTimeout(() => {
       setFadeSlots((prev) => {
         const arr = [...prev];
@@ -157,6 +183,13 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown, problem, currentSlot, userTones]);
 
+  const showPopup = (msg, duration = 1500) => {
+    setPopup(msg);
+    if (duration > 0) {
+      setTimeout(() => setPopup(""), duration);
+    }
+  };
+
   const checkAnswer = () => {
     const isCorrect = userTones.every(
       (tone, i) => tone === problem.tones[i]
@@ -164,10 +197,10 @@ function App() {
 
     if (isCorrect) {
       setScore((prev) => prev + 100);
-      alert("정답!");
+      showPopup("정답!");
     } else {
       setScore((prev) => prev - 50);
-      alert("틀림!");
+      showPopup("틀림!");
     }
 
     loadRandomProblem();
@@ -175,16 +208,17 @@ function App() {
 
   if (!problem) return null;
 
-  const toneColors = {
-    1: "#4CAF50",
-    2: "#2196F3",
-    3: "#f44336"
-  };
+  // toneColors already defined earlier; reuse for rendering
 
   return (
     <div className="container">
+      {popup && (
+        <div className={`popup ${popup ? "show" : ""}`}>{popup}</div>
+      )}
       <h2>점수: {score}</h2>
-      <h3>남은 시간: {timeLeft}</h3>
+      <h3 className={timeLeft < 5 ? "urgent" : ""}>
+        남은 시간: {timeLeft}
+      </h3>
 
       <h1 className="sentence">{problem.sentence}</h1>
       {problem.meaning && (
@@ -202,6 +236,7 @@ function App() {
           >
             <div className="syllable">{syllable}</div>
             <div
+              ref={(el) => (slotRefs.current[index] = el)}
               className={`tone-slot${bounceSlots[index] ? " bounce" : ""}${
                 fadeSlots[index] ? " fade" : ""
               }`}
@@ -215,6 +250,17 @@ function App() {
           </div>
         ))}
       </div>
+      {/* render active shatter effects */}
+      {shatters.map((s) => (
+        <Shatter
+          key={s.id}
+          slotRef={{ current: slotRefs.current[s.idx] }}
+          color={s.color}
+          onDone={() =>
+            setShatters((prev) => prev.filter((x) => x.id !== s.id))
+          }
+        />
+      ))}
 
       <button onClick={checkAnswer}>정답 확인 (또는 Enter/Space)</button>
     </div>

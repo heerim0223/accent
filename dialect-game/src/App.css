@@ -79,7 +79,53 @@
   background-color: rgba(255, 165, 0, 0.1);
 }
 
+/* shattering glass effect when a tone is removed */
+.shatter-container .shard {
+  position: absolute;
+  background-color: #fff;
+  /* match whatever the tone-slot background would be at time of removal */
+  animation: shatter 0.6s ease-out forwards;
+}
+
+@keyframes shatter {
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+
 .buttons button {
   margin: 5px;
   padding: 10px 20px;
+}/* popup overlay for messages */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  font-size: 24px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.popup.show {
+  opacity: 1;
+}
+
+/* urgent countdown styling */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.urgent {
+  color: red;
+  animation: heartbeat 1s ease-in-out infinite;
 }
